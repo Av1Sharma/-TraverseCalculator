@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='icon.ico',  # Will use icon.ico if present
+    icon=None,  # No custom icon - uses default Windows icon
 )
