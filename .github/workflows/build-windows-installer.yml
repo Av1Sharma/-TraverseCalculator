@@ -1,0 +1,65 @@
+name: Build Windows Installer
+
+on:
+  # Trigger on push to main branch
+  push:
+    branches: [main, master]
+  # Trigger on manual dispatch (allows you to run it anytime from GitHub)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build executable with PyInstaller
+        run: pyinstaller TraverseCalculator.spec --noconfirm
+
+      - name: Verify executable was created
+        run: |
+          if (Test-Path "dist\TraverseCalculator.exe") {
+            Write-Host "✓ Executable created successfully"
+            Get-Item "dist\TraverseCalculator.exe" | Select-Object Name, Length
+          } else {
+            Write-Error "Executable not found!"
+            exit 1
+          }
+
+      - name: Install Inno Setup
+        run: |
+          # Download Inno Setup
+          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "innosetup.exe"
+          # Install silently
+          Start-Process -FilePath "innosetup.exe" -Args "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
+          Write-Host "✓ Inno Setup installed"
+
+      - name: Build installer with Inno Setup
+        run: |
+          # Run Inno Setup compiler
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+          Write-Host "✓ Installer created successfully"
+
+      - name: Upload standalone executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraverseCalculator-Portable
+          path: dist/TraverseCalculator.exe
+          retention-days: 90
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraverseCalculator-Installer
+          path: installer_output/TraverseCalculator_Setup.exe
+          retention-days: 90
