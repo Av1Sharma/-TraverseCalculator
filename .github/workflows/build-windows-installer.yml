@@ -37,12 +37,7 @@ jobs:
           }
 
       - name: Install Inno Setup
-        run: |
-          # Download Inno Setup
-          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "innosetup.exe"
-          # Install silently
-          Start-Process -FilePath "innosetup.exe" -Args "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
-          Write-Host "✓ Inno Setup installed"
+        run: choco install innosetup -y --no-progress
 
       - name: Build installer with Inno Setup
         run: |
