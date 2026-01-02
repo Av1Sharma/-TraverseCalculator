@@ -9,6 +9,10 @@ on:
   # Trigger on manual dispatch (allows you to run it anytime from GitHub)
   workflow_dispatch:
 
+# Permissions needed to create releases
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
