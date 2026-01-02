@@ -5,6 +5,13 @@ import json
 import os
 from datetime import datetime
 
+# Auto-update module
+try:
+    import updater
+    UPDATER_AVAILABLE = True
+except ImportError:
+    UPDATER_AVAILABLE = False
+
 
 class PolygonTraverseCalculator:
     def __init__(self, root):
@@ -45,6 +52,10 @@ class PolygonTraverseCalculator:
         
         # Update clock
         self.update_clock()
+        
+        # Check for updates on startup (after 3 seconds to let UI load)
+        if UPDATER_AVAILABLE:
+            updater.check_for_updates_on_startup(self.root, delay_ms=3000)
         
     def create_icon(self):
         """Create a colorful polygon icon"""
@@ -117,6 +128,8 @@ class PolygonTraverseCalculator:
         # Help menu
         help_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="Check for Updates...", command=self.check_for_updates)
+        help_menu.add_separator()
         help_menu.add_command(label="About", command=self.show_about)
         help_menu.add_command(label="Help Contents (Coming Soon)", state="disabled")
         
@@ -855,11 +868,19 @@ class PolygonTraverseCalculator:
         
         self.root.destroy()
     
+    def check_for_updates(self):
+        """Manually check for updates"""
+        if UPDATER_AVAILABLE:
+            updater.check_for_updates_async(self.root, show_no_update_message=True)
+        else:
+            messagebox.showerror("Error", "Update module not available.")
+    
     def show_about(self):
         """Show about dialog"""
+        version = updater.CURRENT_VERSION if UPDATER_AVAILABLE else "1.0.0"
         messagebox.showinfo("About Traverse Calculator",
-            "Traverse Calculator\n"
-            "Version 1.0\n\n"
+            f"Traverse Calculator\n"
+            f"Version {version}\n\n"
             "A professional tool for polygon traverse calculations\n"
             "with Bowditch adjustment method.\n\n"
             "Features:\n"
@@ -868,7 +889,8 @@ class PolygonTraverseCalculator:
             "• Bowditch adjustment\n"
             "• English and Metric units\n"
             "• Save/Load traverse files (.trv)\n"
-            "• PDF export")
+            "• PDF export\n"
+            "• Auto-updates from GitHub")
 
 
 def main():

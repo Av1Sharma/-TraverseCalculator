@@ -7,8 +7,8 @@ a = Analysis(
     ['TraverseCalculator.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[('version.json', '.')],  # Include version file for reference
+    hiddenimports=['updater'],  # Include the updater module
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

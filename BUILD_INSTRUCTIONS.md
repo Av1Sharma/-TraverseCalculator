@@ -123,4 +123,91 @@ TraverseCalculator.spec    # PyInstaller configuration
 installer.iss              # Inno Setup installer script
 build_installer.bat        # Automated build script
 BUILD_INSTRUCTIONS.md      # This file
+updater.py                 # Auto-update module
+version.json               # Version manifest for updates
 ```
+
+## Auto-Update System
+
+The application includes an automatic update system that checks GitHub for new versions.
+
+### How It Works
+
+1. **On startup**: The app checks `version.json` on GitHub (after a 3-second delay)
+2. **Version comparison**: Compares local version with remote version
+3. **User prompt**: If a newer version exists, prompts the user to download
+4. **Manual check**: Users can also check via Help → Check for Updates
+
+### Releasing a New Version
+
+To release an update that users will receive automatically:
+
+#### Step 1: Update Version Numbers
+
+1. **Edit `version.json`**:
+   ```json
+   {
+     "version": "1.1.0",
+     "release_notes": "Description of what's new",
+     "download_url": "https://github.com/Av1Sharma/TraverseCalculator/releases/latest",
+     "release_date": "2026-01-15"
+   }
+   ```
+
+2. **Edit `updater.py`** - Update `CURRENT_VERSION`:
+   ```python
+   CURRENT_VERSION = "1.1.0"
+   ```
+
+#### Step 2: Commit and Tag
+
+```bash
+git add .
+git commit -m "Release v1.1.0 - description of changes"
+git tag v1.1.0
+git push origin main
+git push origin v1.1.0
+```
+
+#### Step 3: GitHub Actions Builds Automatically
+
+- The workflow triggers on version tags (v*)
+- Builds the executable and installer
+- Creates a GitHub Release with the files attached
+- Users running the old version will be notified!
+
+### Important URLs
+
+Make sure these are correct in `updater.py`:
+
+```python
+# Your GitHub raw URL for version.json
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/Av1Sharma/TraverseCalculator/main/version.json"
+
+# Your GitHub releases page
+RELEASES_URL = "https://github.com/Av1Sharma/TraverseCalculator/releases/latest"
+```
+
+**Replace `Av1Sharma/TraverseCalculator`** with your actual GitHub username and repository name.
+
+## Windows SmartScreen Warning
+
+Windows may show "Windows protected your PC" for unsigned executables.
+
+### Why This Happens
+- Your executable is not code-signed
+- Windows doesn't recognize the publisher
+
+### Solutions
+
+1. **Free: SignPath.io** (Open Source Projects Only)
+   - https://signpath.io - free code signing for OSS
+   - Requires your project to be public on GitHub
+
+2. **User Workaround**
+   - Click "More info" → "Run anyway"
+   - This is normal for unsigned software
+
+3. **Paid: Code Signing Certificate** (~$70-500/year)
+   - Providers: DigiCert, Sectigo, SSL.com
+   - EV certificates get immediate SmartScreen trust
