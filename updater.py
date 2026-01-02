@@ -15,7 +15,7 @@ import tempfile
 import subprocess
 
 # Current application version
-CURRENT_VERSION = "1.0.0"
+CURRENT_VERSION = "1.0.1"
 
 # GitHub URLs
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/Av1Sharma/-TraverseCalculator/main/version.json"
